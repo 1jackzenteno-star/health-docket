@@ -1,0 +1,84 @@
+# Every tracked body lives here. Add one to start tracking it; delete one
+# (or comment it out) to stop. `type` must match a module in scrapers/.
+#
+# relevance_tags feed both the dashboard's grouping and the prompt used in
+# scripts/generate_briefing.py to decide whether/why something matters to
+# NNPH's admin functions (finance, HR, IT, grants & contracts) — keep them
+# short, lowercase, hyphenated.
+
+# Tier-level copy shown on the dashboard. Add a tier here (and use its key
+# on a source above) if you ever track a level beyond federal/state/local.
+tiers:
+  federal:
+    index: "I."
+    label: "Federal — Congress"
+    description: >
+      No single portal lists every health-related hearing; these committees
+      carry the bulk of HHS-related business.
+  state:
+    index: "II."
+    label: "State — Nevada Legislature"
+    description: >
+      Nevada's legislature meets in regular session only in odd years.
+      Health & human services business runs through the standing interim
+      committee(s) tracked below between sessions.
+  local:
+    index: "III."
+    label: "Local — Nevada Health Boards"
+    description: >
+      Nevada's local health districts, plus any city/county boards worth
+      watching as peers or precedent for NNPH's own board.
+
+sources:
+
+  - id: senate-help
+    name: "Senate HELP Committee"
+    tier: federal
+    type: congress_api
+    chamber: senate
+    committee_system_code: sshr00     # Congress.gov committee code
+    watch_url: "https://www.help.senate.gov/hearings"
+    relevance_tags: [budget, grants, workforce, hhs-policy]
+
+  - id: house-ec-health
+    name: "House Energy & Commerce — Health Subcommittee"
+    tier: federal
+    type: congress_api
+    chamber: house
+    committee_system_code: hsif00
+    watch_url: "https://energycommerce.house.gov/news/hearings"
+    relevance_tags: [medicaid, compliance, budget, hhs-policy]
+
+  - id: nv-jisc-hhs
+    name: "NV Joint Interim Standing Committee on Health & Human Services"
+    tier: state
+    type: nelis
+    interim: Interim2025
+    committee_id: 2053
+    watch_url: "https://www.leg.state.nv.us/App/InterimCommittee/REL/Interim2025/Committee/2053/Meetings"
+    relevance_tags: [legislation, funding, workforce, board-authority]
+
+  - id: nnph-dboh
+    name: "Washoe County District Board of Health (NNPH)"
+    tier: local
+    type: legistar
+    legistar_client: washoe
+    body_name: "District Board of Health"
+    watch_url: "https://washoe-nv.legistar.com/"
+    relevance_tags: [budget, hr, contracts, own-board]
+
+  - id: snhd-boh
+    name: "Southern Nevada Health District Board of Health"
+    tier: local
+    type: snhd_schedule
+    schedule_pdf_url_pattern: "https://media.southernnevadahealthdistrict.org/download/boh/boh-meeting-schedule-{year}.pdf"
+    minutes_index_url: "https://www.southernnevadahealthdistrict.org/meetings/board-of-health-agendas-minutes-and-audio-recordings/"
+    watch_url: "https://www.southernnevadahealthdistrict.org/meetings/board-of-health-agendas-minutes-and-audio-recordings/"
+    relevance_tags: [peer-district]
+
+  - id: carson-boh
+    name: "Carson City Board of Health"
+    tier: local
+    type: generic_html
+    watch_url: "https://www.carson.org/government/city-meetings/minutes/board-of-health"
+    relevance_tags: [peer-district]

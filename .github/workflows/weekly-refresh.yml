@@ -1,0 +1,69 @@
+name: Weekly refresh
+
+on:
+  schedule:
+    # Mondays 15:00 UTC (~8am Pacific during PDT). Adjust as you like —
+    # GitHub Actions cron is UTC only.
+    - cron: "0 15 * * 1"
+  workflow_dispatch: {}   # lets you click "Run workflow" in the Actions tab
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+
+      - name: Scrape sources
+        run: python scripts/run_scrapers.py
+        env:
+          CONGRESS_API_KEY: ${{ secrets.CONGRESS_API_KEY }}
+
+      - name: Generate impact briefing
+        run: python scripts/generate_briefing.py
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Render site
+        run: python scripts/render_site.py
+
+      - name: Commit data & site changes
+        run: |
+          git config user.name "health-docket-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/ site/
+          git diff --cached --quiet && echo "No changes to commit" || git commit -m "Weekly refresh: $(date -u +%Y-%m-%d)"
+          git push
+
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: refresh
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
