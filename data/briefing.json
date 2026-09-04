@@ -3,28 +3,30 @@
     "meeting_id": "house-ec-health-2026-06-25",
     "generated_at": "2026-09-04",
     "confidence": "unverified",
-    "relevance_tags": ["compliance", "medicaid"],
+    "relevance_tags": [
+      "compliance",
+      "medicaid"
+    ],
     "note": "Congressional Medicaid-integrity scrutiny tends to precede tighter federal audit and documentation requirements that flow down through state Medicaid contracts — worth a heads-up for anything Finance administers that touches Medicaid billing or cost reporting."
-  },
-  {
-    "meeting_id": "senate-help-2026-04-22",
-    "generated_at": "2026-09-04",
-    "confidence": "unverified",
-    "relevance_tags": ["budget", "grants"],
-    "note": "Federal HHS appropriations set the ceiling for CDC/HRSA grant lines that flow into local health district budgets (PHEP, immunization, and similar pass-through funding). A useful leading indicator to note against next year's grant revenue assumptions in the Budget Book."
   },
   {
     "meeting_id": "house-ec-health-2026-07-20",
     "generated_at": "2026-09-04",
     "confidence": "unverified",
-    "relevance_tags": ["compliance"],
+    "relevance_tags": [
+      "compliance"
+    ],
     "note": "Price-transparency rules can eventually touch fee schedules and reporting for county-run clinical services; drug-scheduling changes are more a program/compliance matter than Finance/HR/IT. Bill text and committee report weren't reviewed here — read the markup summary before treating this as settled."
   },
   {
     "meeting_id": "nv-jisc-hhs-2026-08-11",
     "generated_at": "2026-09-04",
     "confidence": "unverified",
-    "relevance_tags": ["legislation", "funding", "board-authority"],
+    "relevance_tags": [
+      "legislation",
+      "funding",
+      "board-authority"
+    ],
     "note": "Late-interim meetings of this committee are where Bill Draft Requests (BDRs) headed into the 2027 legislative session typically get finalized. This hasn't been verified against this specific meeting's exhibits — scan them for anything touching public health district funding, board-of-health authority, or state health-workforce classifications, since those become bills NNPH may need to track in 2027."
   }
 ]

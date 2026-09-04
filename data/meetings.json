@@ -4,16 +4,16 @@
     "source_id": "nv-jisc-hhs",
     "tier": "state",
     "date": "2026-01-06",
-    "time": "09:00",
+    "time": null,
     "title": "NV Joint Interim Standing Committee on Health & Human Services",
     "note": null,
     "links": [
       {
-        "label": "Video (YouTube)",
-        "url": "https://www.youtube.com/watch?v=RcCjScFBsyc"
+        "label": "Agenda / minutes / exhibits",
+        "url": "https://www.leg.state.nv.us/App/InterimCommittee/REL/Interim2025/Meeting/34833"
       }
     ],
-    "verified": true,
+    "verified": false,
     "last_checked": "2026-09-04"
   },
   {
@@ -22,7 +22,7 @@
     "tier": "local",
     "date": "2026-01-22",
     "time": "09:00",
-    "title": "Southern Nevada Health District — Board of Health",
+    "title": "Southern Nevada Health District Board of Health",
     "note": null,
     "links": [
       {
@@ -38,16 +38,16 @@
     "source_id": "nv-jisc-hhs",
     "tier": "state",
     "date": "2026-02-17",
-    "time": "09:00",
+    "time": null,
     "title": "NV Joint Interim Standing Committee on Health & Human Services",
     "note": null,
     "links": [
       {
-        "label": "Agenda / minutes",
+        "label": "Agenda / minutes / exhibits",
         "url": "https://www.leg.state.nv.us/App/InterimCommittee/REL/Interim2025/Meeting/34834"
       }
     ],
-    "verified": true,
+    "verified": false,
     "last_checked": "2026-09-04"
   },
   {
@@ -56,7 +56,7 @@
     "tier": "local",
     "date": "2026-02-26",
     "time": "09:00",
-    "title": "Southern Nevada Health District — Board of Health",
+    "title": "Southern Nevada Health District Board of Health",
     "note": null,
     "links": [
       {
@@ -73,7 +73,7 @@
     "tier": "local",
     "date": "2026-03-26",
     "time": "09:00",
-    "title": "Southern Nevada Health District — Board of Health",
+    "title": "Southern Nevada Health District Board of Health",
     "note": null,
     "links": [
       {
@@ -82,6 +82,23 @@
       }
     ],
     "verified": true,
+    "last_checked": "2026-09-04"
+  },
+  {
+    "id": "nv-jisc-hhs-2026-03-31",
+    "source_id": "nv-jisc-hhs",
+    "tier": "state",
+    "date": "2026-03-31",
+    "time": null,
+    "title": "NV Joint Interim Standing Committee on Health & Human Services",
+    "note": null,
+    "links": [
+      {
+        "label": "Agenda / minutes / exhibits",
+        "url": "https://www.leg.state.nv.us/App/InterimCommittee/REL/Interim2025/Meeting/34837"
+      }
+    ],
+    "verified": false,
     "last_checked": "2026-09-04"
   },
   {
@@ -124,7 +141,7 @@
     "tier": "local",
     "date": "2026-04-23",
     "time": "09:00",
-    "title": "Southern Nevada Health District — Board of Health",
+    "title": "Southern Nevada Health District Board of Health",
     "note": null,
     "links": [
       {
@@ -140,16 +157,16 @@
     "source_id": "nv-jisc-hhs",
     "tier": "state",
     "date": "2026-04-28",
-    "time": "09:00",
+    "time": null,
     "title": "NV Joint Interim Standing Committee on Health & Human Services",
     "note": null,
     "links": [
       {
-        "label": "Agenda / minutes",
+        "label": "Agenda / minutes / exhibits",
         "url": "https://www.leg.state.nv.us/App/InterimCommittee/REL/Interim2025/Meeting/35162"
       }
     ],
-    "verified": true,
+    "verified": false,
     "last_checked": "2026-09-04"
   },
   {
@@ -157,16 +174,16 @@
     "source_id": "nv-jisc-hhs",
     "tier": "state",
     "date": "2026-05-12",
-    "time": "09:00",
+    "time": null,
     "title": "NV Joint Interim Standing Committee on Health & Human Services",
     "note": null,
     "links": [
       {
-        "label": "Agenda / minutes",
+        "label": "Agenda / minutes / exhibits",
         "url": "https://www.leg.state.nv.us/App/InterimCommittee/REL/Interim2025/Meeting/34836"
       }
     ],
-    "verified": true,
+    "verified": false,
     "last_checked": "2026-09-04"
   },
   {
@@ -175,7 +192,7 @@
     "tier": "local",
     "date": "2026-05-28",
     "time": "09:00",
-    "title": "Southern Nevada Health District — Board of Health",
+    "title": "Southern Nevada Health District Board of Health",
     "note": null,
     "links": [
       {
@@ -226,12 +243,12 @@
     "tier": "local",
     "date": "2026-06-25",
     "time": "09:00",
-    "title": "Southern Nevada Health District — Board of Health",
+    "title": "Southern Nevada Health District Board of Health",
     "note": null,
     "links": [
       {
-        "label": "Meeting page",
-        "url": "https://www.southernnevadahealthdistrict.org/meetings/june-25-2026-900-a-m/"
+        "label": "Agendas / minutes",
+        "url": "https://www.southernnevadahealthdistrict.org/meetings/board-of-health-agendas-minutes-and-audio-recordings/"
       }
     ],
     "verified": true,
@@ -242,16 +259,16 @@
     "source_id": "nv-jisc-hhs",
     "tier": "state",
     "date": "2026-06-30",
-    "time": "09:00",
+    "time": null,
     "title": "NV Joint Interim Standing Committee on Health & Human Services",
     "note": null,
     "links": [
       {
-        "label": "Agenda / minutes",
+        "label": "Agenda / minutes / exhibits",
         "url": "https://www.leg.state.nv.us/App/InterimCommittee/REL/Interim2025/Meeting/34835"
       }
     ],
-    "verified": true,
+    "verified": false,
     "last_checked": "2026-09-04"
   },
   {
@@ -294,7 +311,7 @@
     "tier": "local",
     "date": "2026-07-23",
     "time": "09:00",
-    "title": "Southern Nevada Health District — Board of Health",
+    "title": "Southern Nevada Health District Board of Health",
     "note": null,
     "links": [
       {
@@ -310,16 +327,16 @@
     "source_id": "nv-jisc-hhs",
     "tier": "state",
     "date": "2026-08-11",
-    "time": "09:00",
+    "time": null,
     "title": "NV Joint Interim Standing Committee on Health & Human Services",
-    "note": "Final meeting of the 2025–2026 interim",
+    "note": null,
     "links": [
       {
-        "label": "Agenda / minutes",
+        "label": "Agenda / minutes / exhibits",
         "url": "https://www.leg.state.nv.us/App/InterimCommittee/REL/Interim2025/Meeting/34838"
       }
     ],
-    "verified": true,
+    "verified": false,
     "last_checked": "2026-09-04"
   },
   {
@@ -328,7 +345,7 @@
     "tier": "local",
     "date": "2026-08-27",
     "time": "09:00",
-    "title": "Southern Nevada Health District — Board of Health",
+    "title": "Southern Nevada Health District Board of Health",
     "note": null,
     "links": [
       {
@@ -345,7 +362,7 @@
     "tier": "local",
     "date": "2026-09-24",
     "time": "09:00",
-    "title": "Southern Nevada Health District — Board of Health",
+    "title": "Southern Nevada Health District Board of Health",
     "note": null,
     "links": [
       {
@@ -383,7 +400,7 @@
     "tier": "local",
     "date": "2026-10-22",
     "time": "09:00",
-    "title": "Southern Nevada Health District — Board of Health",
+    "title": "Southern Nevada Health District Board of Health",
     "note": null,
     "links": [
       {
@@ -400,8 +417,8 @@
     "tier": "local",
     "date": "2026-11-19",
     "time": "11:00",
-    "title": "Southern Nevada Health District — Board of Health",
-    "note": "Moved up to avoid Thanksgiving",
+    "title": "Southern Nevada Health District Board of Health",
+    "note": null,
     "links": [
       {
         "label": "Agendas / minutes",
