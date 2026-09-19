@@ -12,6 +12,36 @@ add a tracked body without editing code, and the "research" step depended on
 generic fetch-and-summarize calls against sites that don't summarize well
 (PDFs, JS-rendered calendars). This version fixes all three.
 
+## Project management
+
+This repo is mid-restructuring: the file-based version described below
+(JSON files + a Jinja-rendered static page) is being rebuilt into a
+database + API + live-served version. `docs/policy-docket-design-spec.md`
+is the specification of record for that rebuild — its own revision history
+says so explicitly, superseding the earlier draft kept at
+`docs/policy-docket-system-design.md` for reference. The rebuild is broken
+into 10 dependency-ordered tasks across 4 phases, tracked in
+`pm/Health_Docket_Rebuild_Gantt.xlsx`.
+
+**Start every session at `pm/STATUS.md`.** It's a runbook, not a status
+report: its instructions point to the Gantt for the current task, and its
+text is the authoritative order of operations, not this summary. In short:
+
+1. Resume whatever task the Gantt marks "In progress"; only pick a new
+   "Not started" task if none is in progress.
+2. Read that task's Notes, Files, Design reference, and Verify done columns
+   on the Gantt before doing anything.
+3. Check the actual repo state against the Files column — code wins over
+   the Gantt if the two disagree.
+4. Propose a plan and wait for approval before changing anything.
+5. Do the work, commit, then run the task's Verify done check yourself.
+6. Before ending the session: update the task's Status, add a row to the
+   Gantt's Session Log, and update `STATUS.md`'s Current task and Known
+   issues — regardless of whether the task actually finished.
+
+If this summary and `pm/STATUS.md` ever disagree, `pm/STATUS.md` is right
+— this is a pointer to it, not a copy of it.
+
 ## How it's structured
 
 ```
