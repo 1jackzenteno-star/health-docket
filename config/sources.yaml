@@ -63,7 +63,7 @@ sources:
     tier: local
     type: legistar
     legistar_client: washoe
-    body_name: "District Board of Health"
+    body_name: "Northern Nevada Public Health"
     watch_url: "https://washoe-nv.legistar.com/"
     relevance_tags: [budget, hr, contracts, own-board]
 
