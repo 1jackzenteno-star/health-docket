@@ -5,3 +5,5 @@ Jinja2>=3.1
 anthropic>=0.40
 pdfplumber>=0.11
 playwright>=1.47
+fastapi>=0.115
+uvicorn[standard]>=0.32
