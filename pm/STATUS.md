@@ -20,6 +20,12 @@ Read this file first, every session. Then follow these steps in order.
 
 8. If every row on the Task Plan tab is "Done," say so and ask what's next — don't invent new tasks.
 
+## Build plan status: COMPLETE (2026-09-20)
+
+All 10 tasks in `pm/Health_Docket_Rebuild_Gantt.xlsx`'s Task Plan tab are **Done**. The rebuild described in `docs/policy-docket-design-spec.md` is live at **https://health-docket-api.onrender.com** — real database, real API, real pipeline, real three-screen frontend, all verified against actual live data (not just local tests). See Task 10's entry below for the final live-verification details, and the Gantt's Session Log for the full history of every task.
+
+There is no "next task" to pick up per step 2 above — a future session should read the Known issues section below for what's genuinely still open (the scrape-stage/live-database gap, in particular) before proposing new work, rather than inventing a Task 11.
+
 ## Current task
 
 Task 1 — Design & migrate schema: Done.
