@@ -9,9 +9,18 @@
 # needed because POST /api/focus-areas writes real, non-regenerable data
 # (Jack's saved focus-area groupings) that must survive restarts/redeploys
 # -- everything else in the database is rebuilt from the git-tracked
-# config/sources.yaml + data/*.json on the very first deploy only, via
-# initialDeployHook below (Render runs this once per service instance, not
-# on every deploy, so later redeploys don't wipe focus_areas).
+# config/sources.yaml + data/*.json the first time the service starts on a
+# fresh disk. startCommand below checks for the db file and builds it only
+# if missing, so later restarts/redeploys don't wipe focus_areas.
+#
+# NOTE: this used to use Render's initialDeployHook for that one-time
+# build, but that hook runs only after Render already considers the
+# service "successfully deployed" -- which happens as soon as the health
+# check responds, even with an empty/missing database (our /api/health
+# reports "degraded" rather than failing outright). That left a real gap
+# where the live service served 500s until the hook caught up. Building
+# the db synchronously in startCommand, before uvicorn opens for traffic,
+# removes that gap entirely.
 #
 # To deploy: in the Render dashboard, New -> Blueprint -> connect the
 # 1jackzenteno-star/health-docket repo. Render finds this file automatically.
@@ -30,8 +39,7 @@ services:
     plan: 0.5c-512mb
     region: oregon
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
-    initialDeployHook: python3 db/migrate.py
+    startCommand: bash -c "test -f \"$DATABASE_PATH\" || python3 db/migrate.py; exec uvicorn api.main:app --host 0.0.0.0 --port $PORT"
     healthCheckPath: /api/health
     disk:
       name: health-docket-data
