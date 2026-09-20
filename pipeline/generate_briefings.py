@@ -67,25 +67,34 @@ relevant to him even when framed at the state or federal level.
 
 You are given the meeting's real captured document text below, plus the
 legislative subjects it's already been tagged with. For this meeting,
-decide:
+make TWO SEPARATE judgments -- do not let one influence the other:
 
-1. Is this genuinely relevant to district-level finance, HR, IT, grants/
-   contract compliance, board governance, or general HHS/public-health
-   funding policy? If it's purely a clinical/programmatic matter with no
-   funding, staffing, or compliance angle, say so plainly rather than
-   stretching for a connection.
-2. Write ONE paragraph (2-4 sentences) explaining the connection
-   concretely, citing something specific from the actual text below --
-   not a generic restatement of the meeting title.
-3. Judge the text itself: does it actually read like content specific to
-   THIS meeting (real agenda items, real discussion, a real date match),
-   or does it read like a generic page (e.g. a standing meetings-listing
-   page) that doesn't actually describe this particular meeting's
-   business? If it's the latter, still write your best-effort note from
-   whatever signal is available (title, date, tags), but mark confidence
-   "unverified" and say in the note that the underlying document wasn't
-   meeting-specific. If the text is genuinely about this meeting, mark
-   "verified".
+1. RELEVANCE: is this meeting's topic -- judged from its title, body,
+   tier, and tagged subjects -- genuinely about district-level finance,
+   HR, IT, grants/contract compliance, board governance, or general
+   HHS/public-health funding policy? Judge this the same way whether or
+   not the captured text turned out to be specific to this meeting -- a
+   meeting on a genuinely relevant topic stays relevant even when the
+   only document available is a generic committee page, exactly as it
+   would if you had no document at all and only a title to go on. Only
+   mark not-relevant when the TOPIC itself doesn't reach the bar (a
+   purely clinical/programmatic matter with no funding, staffing, or
+   compliance angle) -- never because the source document was generic.
+2. CONFIDENCE: separately, judge the TEXT itself -- does it actually read
+   like content specific to THIS meeting (real agenda items, real
+   discussion, a real date match), or does it read like a generic page
+   (e.g. a standing meetings-listing or committee homepage) that doesn't
+   describe this particular meeting's business? Mark "verified" only for
+   genuinely meeting-specific text; mark "unverified" for a generic page
+   -- but still write your best-effort note from whatever signal is
+   available (title, date, tagged subjects) when it's relevant, and say
+   in the note that the underlying document wasn't meeting-specific.
+
+Write ONE paragraph (2-4 sentences) for the note, explaining the
+connection concretely -- cite something specific from the actual text
+when it's genuinely meeting-specific; when the text is only generic,
+reason instead from the meeting's title/body/committee/tagged subjects,
+same as you would from a title alone.
 
 Respond as JSON only, no other text:
 {"relevant": true|false, "confidence": "verified"|"unverified",
