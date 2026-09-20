@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Health Docket</title>
+<link rel="stylesheet" href="/static/docket.css">
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div>
+      <div class="masthead-title"><a href="/">Health Docket</a></div>
+      <div class="masthead-sub" id="subject-sub">One Legislative Subject, traced across every tier.</div>
+    </div>
+    <div class="masthead-meta" id="generated-at-top"></div>
+  </header>
+
+  <nav class="breadcrumbs" id="breadcrumbs"></nav>
+
+  <div id="content">
+    <div class="loading">Loading&hellip;</div>
+  </div>
+
+  <footer class="site-footer">
+    ai-tagged subjects show the model's own confidence; human-confirmed rows never carry a confidence score.
+  </footer>
+</div>
+
+<script src="/static/docket.js"></script>
+<script>
+(function () {
+  var SLUG = {{ slug | tojson }};
+  var content = document.getElementById("content");
+
+  function tagBadge(m) {
+    if (m.tagged_by === "human") return '<span class="badge tag-human">human-confirmed</span>';
+    var pct = (typeof m.confidence === "number") ? Math.round(m.confidence * 100) + "%" : "?";
+    return '<span class="badge tag-ai">ai-tagged &middot; ' + pct + '</span>';
+  }
+
+  function render(subject, generatedAt) {
+    document.title = subject.name + " -- Health Docket";
+    document.getElementById("subject-sub").textContent = subject.name +
+      (subject.policy_area ? " (" + subject.policy_area + ")" : "") + " across every tracked tier.";
+    document.getElementById("generated-at-top").textContent = "As of " + Docket.fmtDate(generatedAt);
+
+    var crumbs = [{ label: "Overview", href: "/" }];
+    if (subject.policy_area) {
+      // policy_area is a name here, not a slug -- the API doesn't return
+      // the parent area's slug from this endpoint, so this link only
+      // appears when we can derive it the same way the API does.
+      crumbs.push({ label: subject.policy_area });
+    }
+    crumbs.push({ label: subject.name });
+    document.getElementById("breadcrumbs").innerHTML = Docket.breadcrumbsHTML(crumbs);
+
+    if (!subject.meetings.length) {
+      content.innerHTML = '<div class="empty-state">No meetings tagged with this subject yet.</div>';
+      return;
+    }
+
+    var byTier = { federal: [], state: [], local: [] };
+    subject.meetings.forEach(function (m) { (byTier[m.tier_key] || (byTier[m.tier_key] = [])).push(m); });
+
+    var today = new Date().toISOString().slice(0, 10);
+    var html = "";
+    ["federal", "state", "local"].forEach(function (tierKey) {
+      var meetings = byTier[tierKey] || [];
+      if (!meetings.length) return;
+      // aligned to each body's next meeting date (FR7): soonest first within a tier
+      meetings.sort(function (a, b) { return (a.occurred_at || "").localeCompare(b.occurred_at || ""); });
+      html += '<section class="subject-tier-group"><h2>' + Docket.tierLabel(tierKey) + '</h2>';
+      meetings.forEach(function (m) {
+        var isNext = m.occurred_at >= today;
+        html += '<div class="subject-meeting-row' + (isNext ? ' next-up' : '') + '">' +
+          '<div><div class="meeting-title">' + Docket.escapeHtml(m.title) + '</div>' +
+          '<div class="meeting-date">' + Docket.escapeHtml(m.body_name) + ' &middot; ' + Docket.fmtDate(m.occurred_at) + '</div></div>' +
+          tagBadge(m) + '</div>';
+      });
+      html += "</section>";
+    });
+    content.innerHTML = html;
+  }
+
+  Docket.fetchJSON("/api/subjects/" + SLUG).then(function (resp) {
+    render(resp.data, resp.generated_at);
+  }).catch(function (err) {
+    Docket.showError(content, err);
+  });
+})();
+</script>
+</body>
+</html>

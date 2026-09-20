@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Health Docket</title>
+<link rel="stylesheet" href="/static/docket.css">
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div>
+      <div class="masthead-title"><a href="/">Health Docket</a></div>
+      <div class="masthead-sub">All 32 Congress.gov Policy Areas, live from the database -- what's flagged, and where NNPH has bodies tracked.</div>
+    </div>
+    <div class="masthead-meta" id="generated-at-top"></div>
+  </header>
+
+  <div id="content">
+    <div class="loading">Loading policy areas&hellip;</div>
+  </div>
+
+  <footer class="site-footer">
+    Sources are public government portals -- Congress.gov, NELIS, Legistar, and each health district's own site.
+    Only Health has tracked bodies today (see docs/policy-docket-design-spec.md, Appendix C) -- every other bucket below is structurally ready but says so.
+  </footer>
+</div>
+
+<script src="/static/docket.js"></script>
+<script>
+(function () {
+  var qs = new URLSearchParams(window.location.search);
+  var activeFocusArea = qs.get("focus_area");
+
+  function areasURL() {
+    return "/api/policy-areas" + (activeFocusArea ? "?focus_area=" + encodeURIComponent(activeFocusArea) : "");
+  }
+
+  function renderChips(container, focusAreas) {
+    var html = '<div class="chip-row">';
+    html += '<a class="chip' + (!activeFocusArea ? ' active' : '') + '" href="/">All policy areas</a>';
+    focusAreas.forEach(function (fa) {
+      var isActive = activeFocusArea === fa.slug;
+      html += '<a class="chip' + (isActive ? ' active' : '') + '" href="/?focus_area=' + encodeURIComponent(fa.slug) + '">' +
+        Docket.escapeHtml(fa.name) + "</a>";
+    });
+    html += "</div>";
+    container.innerHTML = html;
+  }
+
+  function renderAttention(container, items) {
+    if (!items.length) return; // no attention strip section at all when nothing is flagged yet
+    var html = '<section class="attention-strip"><h2>Needs attention</h2>';
+    items.forEach(function (m) {
+      html += '<div class="attention-card">' +
+        '<div class="attention-meta">' + Docket.escapeHtml(m.policy_area) + ' &middot; ' + Docket.tierLabel(m.tier) + ' &middot; ' + Docket.fmtDate(m.occurred_at) + '</div>' +
+        '<div class="attention-title"><a href="/policy-areas/' + m.policy_area_slug + '">' + Docket.escapeHtml(m.title) + "</a></div>";
+      if (m.briefing && m.briefing.note) {
+        html += '<div class="attention-note">' + Docket.escapeHtml(m.briefing.note) + "</div>";
+      }
+      html += "</div>";
+    });
+    html += "</section>";
+    container.insertAdjacentHTML("beforeend", html);
+  }
+
+  function renderGrid(container, areas, trackedCounts) {
+    var html = '<div class="bucket-grid">';
+    areas.forEach(function (a) {
+      var tracked = trackedCounts[a.slug] || 0;
+      var untracked = tracked === 0;
+      html += '<a class="bucket-card' + (untracked ? ' untracked' : '') + '" href="' + (untracked ? '#' : '/policy-areas/' + a.slug) + '"' +
+        (untracked ? ' onclick="return false;" aria-disabled="true"' : '') + '>' +
+        '<div class="bucket-name">' + Docket.escapeHtml(a.name) + "</div>";
+      if (untracked) {
+        html += '<div class="bucket-untracked-label">Not yet tracked</div>';
+      } else {
+        html += '<div class="bucket-flag' + (a.flagged_count > 0 ? ' has-flags' : '') + '">' +
+          a.flagged_count + (a.flagged_count === 1 ? " flagged meeting" : " flagged meetings") + "</div>" +
+          Docket.sparklineSVG(a.sparkline);
+      }
+      html += "</a>";
+    });
+    html += "</div>";
+    container.innerHTML = html;
+  }
+
+  var content = document.getElementById("content");
+
+  Promise.all([
+    Docket.fetchJSON(areasURL()),
+    Docket.fetchJSON("/api/focus-areas"),
+  ]).then(function (results) {
+    var areasResp = results[0], focusResp = results[1];
+    var areas = areasResp.data;
+
+    document.getElementById("generated-at-top").textContent = "As of " + Docket.fmtDate(areasResp.generated_at);
+
+    content.innerHTML = "";
+    var chipsEl = Docket.el("div", "");
+    content.appendChild(chipsEl);
+    renderChips(chipsEl, focusResp.data);
+
+    var attentionEl = Docket.el("div", "");
+    content.appendChild(attentionEl);
+
+    var gridEl = Docket.el("div", "");
+    content.appendChild(gridEl);
+    gridEl.innerHTML = '<div class="loading">Checking which policy areas have tracked bodies&hellip;</div>';
+
+    // FR1: a bucket with no tracked bodies must say so plainly rather than
+    // show a zero that looks like "nothing happening." GET /api/policy-areas
+    // doesn't carry a body count, so this asks each area's own /bodies
+    // endpoint -- 32 small, fast SQLite lookups, acceptable at this
+    // project's solo-tool scale (NFR1); a future API addition could fold
+    // this into the main endpoint and remove the fan-out.
+    var bodiesChecks = areas.map(function (a) {
+      return Docket.fetchJSON("/api/policy-areas/" + a.slug + "/bodies")
+        .then(function (r) { return { slug: a.slug, count: r.data.length }; })
+        .catch(function () { return { slug: a.slug, count: 0 }; });
+    });
+
+    Promise.all(bodiesChecks).then(function (checks) {
+      var trackedCounts = {};
+      checks.forEach(function (c) { trackedCounts[c.slug] = c.count; });
+      renderGrid(gridEl, areas, trackedCounts);
+
+      // Global attention strip: no single endpoint spans every policy area
+      // (§6's /attention is per-area only), so this merges the top items
+      // from each area that actually has flagged meetings -- today that's
+      // just Health, honestly reflecting where real data exists.
+      var flaggedAreas = areas.filter(function (a) { return a.flagged_count > 0; });
+      Promise.all(flaggedAreas.map(function (a) {
+        return Docket.fetchJSON("/api/policy-areas/" + a.slug + "/attention?limit=5")
+          .then(function (r) { return r.data.map(function (m) { return Object.assign({}, m, { policy_area: a.name, policy_area_slug: a.slug }); }); })
+          .catch(function () { return []; });
+      })).then(function (lists) {
+        var all = [].concat.apply([], lists);
+        all.sort(function (x, y) { return (x.occurred_at || "").localeCompare(y.occurred_at || ""); });
+        renderAttention(attentionEl, all.slice(0, 8));
+      });
+    });
+  }).catch(function (err) {
+    Docket.showError(content, err);
+  });
+})();
+</script>
+</body>
+</html>

@@ -13,23 +13,29 @@ Then e.g. curl http://127.0.0.1:8000/api/health
 """
 from __future__ import annotations
 
-from fastapi import FastAPI
+from pathlib import Path
 
-from api.routes import focus_areas, health, policy_areas, subjects
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+
+from api.routes import admin, focus_areas, health, pages, policy_areas, subjects
+
+ROOT = Path(__file__).resolve().parent.parent
 
 app = FastAPI(
     title="Health Docket API",
-    version="0.1.0",
-    description="Serves data/meetings.json + data/briefing.json (via db/health_docket.db) "
-    "to the Health Docket frontend. See docs/policy-docket-design-spec.md §6.",
+    version="0.2.0",
+    description="Serves the live Health Docket site (Task 10) plus its JSON API, "
+    "both backed by db/health_docket.db. See docs/policy-docket-design-spec.md §6-7.",
 )
 
 app.include_router(health.router)
 app.include_router(policy_areas.router)
 app.include_router(subjects.router)
 app.include_router(focus_areas.router)
+app.include_router(admin.router)
 
+app.mount("/static", StaticFiles(directory=str(ROOT / "static")), name="static")
 
-@app.get("/")
-def root():
-    return {"service": "health-docket-api", "docs": "/docs"}
+# Page routes (Task 10) mounted last so they don't shadow /api/* or /static/*.
+app.include_router(pages.router)

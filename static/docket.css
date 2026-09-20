@@ -1,0 +1,141 @@
+/* Health Docket -- shared styles for the live three-screen frontend
+   (Task 10: Overview, Policy Area, Subject). Palette and type choices
+   carried over from the retired templates/dashboard.html.j2 prototype
+   for visual continuity; nothing here contains meeting data (NFR4). */
+
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root{
+  --paper: #f6f3ea; --paper-raised: #fffdf8; --ink: #1c2624; --ink-soft: #4c5854; --ink-faint: #7c8783;
+  --line: #ddd5bf; --line-strong: #c7bd9f; --primary: #24544f; --primary-soft: #dde9e4;
+  --accent: #b5651d; --accent-soft: #f3e2cc; --good: #3f7355; --good-soft: #dfeadf;
+  --warn: #a13d3d; --warn-soft: #f3dcdc;
+  --federal: #46587f; --federal-soft: #dfe4ee; --state: #24544f; --local: #b5651d;
+  --shadow: 0 1px 2px rgba(28,38,36,0.06), 0 6px 16px rgba(28,38,36,0.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper: #121715; --paper-raised: #182420; --ink: #e9e6da; --ink-soft: #b7bcb2; --ink-faint: #7f8b85;
+    --line: #2b3733; --line-strong: #3c4a44; --primary: #7bbead; --primary-soft: #1c322d;
+    --accent: #e0973f; --accent-soft: #3a2c19; --good: #83c39a; --good-soft: #1c3025;
+    --warn: #e08484; --warn-soft: #3a1f1f;
+    --federal: #8ea3d1; --federal-soft: #212b3d; --state: #7bbead; --local: #e0973f;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 20px rgba(0,0,0,0.35);
+  }
+}
+:root[data-theme="dark"]{
+  --paper: #121715; --paper-raised: #182420; --ink: #e9e6da; --ink-soft: #b7bcb2; --ink-faint: #7f8b85;
+  --line: #2b3733; --line-strong: #3c4a44; --primary: #7bbead; --primary-soft: #1c322d;
+  --accent: #e0973f; --accent-soft: #3a2c19; --good: #83c39a; --good-soft: #1c3025;
+  --warn: #e08484; --warn-soft: #3a1f1f;
+  --federal: #8ea3d1; --federal-soft: #212b3d; --state: #7bbead; --local: #e0973f;
+  --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 20px rgba(0,0,0,0.35);
+}
+
+*{ box-sizing: border-box; }
+html{ background: var(--paper); }
+body{ background: var(--paper); color: var(--ink); font-family: 'Public Sans', system-ui, sans-serif; line-height: 1.5; margin: 0; }
+.wrap{ max-width: 1040px; margin: 0 auto; padding: 40px 24px 80px; }
+h1,h2,h3{ font-family: 'Source Serif 4', Georgia, serif; text-wrap: balance; margin: 0; }
+a{ color: inherit; }
+
+header.masthead{ border-bottom: 3px double var(--line-strong); padding-bottom: 18px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+.masthead-title{ font-size: 1.9rem; font-weight: 700; color: var(--primary); letter-spacing: -0.01em; text-decoration: none; }
+.masthead-title a{ text-decoration: none; color: inherit; }
+.masthead-sub{ color: var(--ink-soft); font-size: 0.88rem; max-width: 50ch; margin-top: 4px; }
+.masthead-meta{ text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.06em; line-height: 1.6; }
+
+.breadcrumbs{ font-size: 0.8rem; color: var(--ink-faint); margin: 16px 0 28px; }
+.breadcrumbs a{ color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid var(--line-strong); }
+.breadcrumbs a:hover{ color: var(--primary); border-color: var(--primary); }
+.breadcrumbs .sep{ margin: 0 6px; color: var(--line-strong); }
+.breadcrumbs .current{ color: var(--ink); font-weight: 600; }
+
+.loading, .error-banner, .empty-state{ font-size: 0.9rem; padding: 14px 16px; border-radius: 8px; margin-bottom: 18px; }
+.loading{ color: var(--ink-faint); }
+.error-banner{ background: var(--warn-soft); color: var(--warn); border: 1px solid var(--warn); }
+.empty-state{ color: var(--ink-faint); background: var(--paper-raised); border: 1px dashed var(--line-strong); }
+
+.generated-at{ font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 20px; }
+
+/* Focus-area filter chips (Overview, FR8) */
+.chip-row{ display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+.chip{ font-family: 'Public Sans', sans-serif; font-size: 0.8rem; font-weight: 500; color: var(--ink-soft); background: var(--paper-raised); border: 1px solid var(--line); padding: 6px 14px; border-radius: 100px; cursor: pointer; text-decoration: none; }
+.chip:hover{ border-color: var(--primary); color: var(--primary); }
+.chip.active{ background: var(--primary); border-color: var(--primary); color: var(--paper-raised); }
+
+/* Overview: attention strip */
+.attention-strip{ margin-bottom: 36px; }
+.attention-strip h2{ font-size: 1.1rem; margin-bottom: 12px; }
+.attention-card{ background: var(--paper-raised); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; margin-bottom: 10px; box-shadow: var(--shadow); }
+.attention-meta{ font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+.attention-title a{ font-weight: 600; text-decoration: none; }
+.attention-title a:hover{ color: var(--primary); }
+.attention-note{ margin-top: 8px; font-size: 0.86rem; color: var(--ink-soft); }
+
+/* Overview: 32-bucket grid (FR1) */
+.bucket-grid{ display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+.bucket-card{ display: block; text-decoration: none; color: inherit; background: var(--paper-raised); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; box-shadow: var(--shadow); }
+.bucket-card:hover{ border-color: var(--primary); }
+.bucket-card.untracked{ opacity: 0.55; }
+.bucket-card.untracked:hover{ border-color: var(--line); cursor: default; }
+.bucket-name{ font-family: 'Source Serif 4', serif; font-weight: 600; font-size: 1rem; margin-bottom: 6px; }
+.bucket-flag{ font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; color: var(--ink-faint); }
+.bucket-flag.has-flags{ color: var(--accent); font-weight: 600; }
+.bucket-untracked-label{ font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); margin-top: 6px; }
+.sparkline{ display: block; margin-top: 8px; }
+.sparkline path{ fill: none; stroke: var(--primary); stroke-width: 1.5; }
+
+/* Policy-area page */
+.snapshot-strip{ display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 28px; }
+.snapshot-card{ background: var(--paper-raised); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; box-shadow: var(--shadow); }
+.snapshot-tier{ font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); }
+.snapshot-count{ font-family: 'Source Serif 4', serif; font-size: 1.6rem; font-weight: 700; color: var(--primary); margin-top: 2px; }
+.snapshot-count-label{ font-size: 0.76rem; color: var(--ink-soft); }
+
+.subject-chip-row{ margin-bottom: 28px; }
+.subject-chip-row h2{ font-size: 1rem; margin-bottom: 10px; }
+
+.tabs{ display: flex; gap: 4px; margin-bottom: 22px; border-bottom: 1px solid var(--line); }
+.tab-btn{ font-family: 'Public Sans', sans-serif; font-size: 0.86rem; font-weight: 600; color: var(--ink-faint); background: none; border: none; border-bottom: 2px solid transparent; padding: 8px 4px 10px; margin-right: 22px; cursor: pointer; }
+.tab-btn:hover{ color: var(--ink); }
+.tab-btn.active{ color: var(--primary); border-bottom-color: var(--primary); }
+
+.body-panel{ background: var(--paper-raised); border: 1px solid var(--line); border-radius: 8px; padding: 18px 20px; margin-bottom: 16px; box-shadow: var(--shadow); }
+.body-panel-head{ display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+.body-name{ font-family: 'Source Serif 4', serif; font-weight: 600; font-size: 1.08rem; }
+.body-name a{ color: inherit; text-decoration: none; border-bottom: 1px solid var(--line-strong); }
+.body-name a:hover{ color: var(--primary); border-color: var(--primary); }
+.meeting-group-label{ font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); margin: 14px 0 6px; }
+.meeting-item{ padding: 10px 0; border-top: 1px solid var(--line); }
+.meeting-item:first-of-type{ border-top: none; }
+.meeting-head{ display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+.meeting-date{ font-family: 'IBM Plex Mono', monospace; font-size: 0.76rem; color: var(--ink-faint); white-space: nowrap; }
+.meeting-title{ font-weight: 600; font-size: 0.94rem; }
+.doc-badges{ display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+.badge{ font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; letter-spacing: 0.03em; text-transform: uppercase; padding: 2px 8px; border-radius: 100px; white-space: nowrap; background: var(--line); color: var(--ink-soft); }
+.badge.doc-extracted{ background: var(--good-soft); color: var(--good); }
+.badge.doc-captured, .badge.doc-pending{ background: var(--accent-soft); color: var(--accent); }
+.badge.doc-failed{ background: var(--warn-soft); color: var(--warn); }
+.badge.doc-notlinked{ background: var(--line); color: var(--ink-faint); }
+.badge.tag-ai{ background: var(--primary-soft); color: var(--primary); }
+.badge.tag-human{ background: var(--good-soft); color: var(--good); }
+
+.briefing-note{ margin-top: 8px; padding: 8px 12px; background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 0 5px 5px 0; font-size: 0.84rem; color: var(--ink); }
+.briefing-note.unverified{ background: var(--line); border-left-color: var(--ink-faint); }
+.briefing-note b{ display: block; font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; color: var(--accent); }
+.briefing-note.unverified b{ color: var(--ink-soft); }
+
+/* Subject page */
+.subject-tier-group{ margin-bottom: 28px; }
+.subject-tier-group h2{ font-size: 1.1rem; margin-bottom: 10px; }
+.subject-meeting-row{ display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline; padding: 10px 0; border-top: 1px solid var(--line); }
+.subject-meeting-row:first-of-type{ border-top: none; }
+.subject-meeting-row.next-up{ background: var(--primary-soft); border-radius: 6px; padding: 10px 12px; border-top: none; }
+
+footer.site-footer{ margin-top: 48px; padding-top: 20px; border-top: 3px double var(--line-strong); font-size: 0.78rem; color: var(--ink-faint); }
+
+@media (max-width: 620px){
+  header.masthead{ flex-direction: column; align-items: flex-start; }
+  .masthead-meta{ text-align: left; }
+}

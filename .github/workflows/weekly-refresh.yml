@@ -1,69 +1,44 @@
 name: Weekly refresh
 
+# Task 10 (frontend cutover) rewrote this from the ground up. The old
+# version scraped into data/meetings.json, rendered a static site, and
+# deployed it to GitHub Pages -- all retired now that the live site is
+# served directly by the Render-hosted FastAPI app (api/main.py) from its
+# own database. A GitHub Actions runner has no way to reach that
+# database file directly, so this workflow's only job now is to call the
+# live service's own refresh endpoint (api/routes/admin.py), which runs
+# the pipeline stages in-process against the disk it already has open.
+#
+# This only refreshes documents/tags/briefings for meetings ALREADY in
+# the live database -- getting brand-new meetings into it is a real,
+# separate gap (see pm/STATUS.md Known issues: the scrape stage was
+# never rewritten to write to the database, and db/migrate.py's
+# JSON-to-DB migration is destructive to re-run). Documented, not hidden.
+
 on:
   schedule:
-    # Mondays 15:00 UTC (~8am Pacific during PDT). Adjust as you like —
-    # GitHub Actions cron is UTC only.
+    # Mondays 15:00 UTC (~8am Pacific during PDT). GitHub Actions cron is UTC only.
     - cron: "0 15 * * 1"
   workflow_dispatch: {}   # lets you click "Run workflow" in the Actions tab
-
-permissions:
-  contents: write
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: false
 
 jobs:
   refresh:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install dependencies
+      - name: Call the live refresh endpoint
         run: |
-          pip install -r requirements.txt
-          playwright install --with-deps chromium
-
-      - name: Scrape sources
-        run: python scripts/run_scrapers.py
-        env:
-          CONGRESS_API_KEY: ${{ secrets.CONGRESS_API_KEY }}
-
-      - name: Generate impact briefing
-        run: python scripts/generate_briefing.py
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-
-      - name: Render site
-        run: python scripts/render_site.py
-
-      - name: Commit data & site changes
-        run: |
-          git config user.name "health-docket-bot"
-          git config user.email "actions@users.noreply.github.com"
-          git add data/ site/
-          git diff --cached --quiet && echo "No changes to commit" || git commit -m "Weekly refresh: $(date -u +%Y-%m-%d)"
-          git push
-
-      - name: Upload site artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: site
-
-  deploy:
-    needs: refresh
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          code=$(curl -s -o response.json -w "%{http_code}" -X POST \
+            -H "X-Refresh-Token: ${{ secrets.REFRESH_TOKEN }}" \
+            --max-time 1800 \
+            "${{ vars.HEALTH_DOCKET_API_URL || 'https://health-docket-api.onrender.com' }}/api/admin/refresh")
+          echo "HTTP $code"
+          cat response.json
+          echo
+          if [ "$code" != "200" ]; then
+            echo "::error::Refresh endpoint returned $code"
+            exit 1
+          fi
+          ok=$(python3 -c "import json; print(json.load(open('response.json'))['ok'])")
+          if [ "$ok" != "True" ]; then
+            echo "::warning::One or more pipeline stages reported ok:false -- see response.json above for which"
+          fi

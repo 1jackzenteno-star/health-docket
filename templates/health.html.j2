@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Health Docket</title>
+<link rel="stylesheet" href="/static/docket.css">
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div>
+      <div class="masthead-title"><a href="/">Health Docket</a></div>
+      <div class="masthead-sub" id="area-sub">One Policy Area, every tier at once.</div>
+    </div>
+    <div class="masthead-meta" id="generated-at-top"></div>
+  </header>
+
+  <nav class="breadcrumbs" id="breadcrumbs"></nav>
+
+  <div id="content">
+    <div class="loading">Loading&hellip;</div>
+  </div>
+
+  <footer class="site-footer">
+    tagged_by distinguishes an AI-assigned subject tag from a human-confirmed one. Briefing notes always show which model produced them.
+  </footer>
+</div>
+
+<script src="/static/docket.js"></script>
+<script>
+(function () {
+  var SLUG = {{ slug | tojson }};
+  var content = document.getElementById("content");
+  var activeTier = "federal";
+
+  function renderSnapshot(tiers) {
+    var html = '<div class="snapshot-strip">';
+    tiers.forEach(function (t) {
+      html += '<div class="snapshot-card"><div class="snapshot-tier">' + Docket.tierLabel(t.tier) + '</div>' +
+        '<div class="snapshot-count">' + t.meeting_count + '</div>' +
+        '<div class="snapshot-count-label">tracked meeting' + (t.meeting_count === 1 ? '' : 's') + ' tagged to this area</div></div>';
+    });
+    html += "</div>";
+    return html;
+  }
+
+  function renderSubjectChips(subjects) {
+    if (!subjects.length) return "";
+    var html = '<section class="subject-chip-row"><h2>Subjects in this area</h2><div class="chip-row">';
+    subjects.forEach(function (s) {
+      html += '<a class="chip" href="/subjects/' + s.slug + '">' + Docket.escapeHtml(s.name) +
+        ' <span style="opacity:.6">(' + s.meeting_count + ')</span></a>';
+    });
+    html += "</div></section>";
+    return html;
+  }
+
+  function meetingItemHTML(m, briefingByMeetingId) {
+    var html = '<div class="meeting-item">' +
+      '<div class="meeting-head"><span class="meeting-title">' + Docket.escapeHtml(m.title) + '</span>' +
+      '<span class="meeting-date">' + Docket.fmtDate(m.occurred_at) + '</span></div>';
+    if (m.documents && m.documents.length) {
+      html += '<div class="doc-badges">';
+      m.documents.forEach(function (d) {
+        var b = Docket.docStatusBadge(d);
+        html += '<span class="badge ' + b.cls + '">' + Docket.escapeHtml(d.doc_type || "document") + ': ' + b.label + '</span>';
+      });
+      html += '</div>';
+    }
+    var briefing = briefingByMeetingId[m.id];
+    if (briefing) {
+      html += '<div class="briefing-note' + (briefing.confidence !== 'verified' ? ' unverified' : '') + '">' +
+        '<b>' + (briefing.confidence === 'verified' ? 'Why this matters' : 'Check source') + ' &middot; ' + Docket.escapeHtml(briefing.model_version || 'model unknown') + '</b>' +
+        Docket.escapeHtml(briefing.note) + '</div>';
+    }
+    html += "</div>";
+    return html;
+  }
+
+  function renderBodies(bodies, briefingByMeetingId) {
+    if (!bodies.length) {
+      return '<div class="empty-state">No bodies tracked at this tier for this policy area yet.</div>';
+    }
+    var html = "";
+    bodies.forEach(function (b) {
+      html += '<div class="body-panel"><div class="body-panel-head">' +
+        '<span class="body-name"><a href="' + (b.watch_url || '#') + '" target="_blank" rel="noopener">' + Docket.escapeHtml(b.name) + '</a></span></div>';
+
+      html += '<div class="meeting-group-label">Upcoming</div>';
+      if (b.upcoming_meetings.length) {
+        b.upcoming_meetings.forEach(function (m) { html += meetingItemHTML(m, briefingByMeetingId); });
+      } else {
+        html += '<div class="empty-state">Nothing scheduled yet.</div>';
+      }
+
+      html += '<div class="meeting-group-label">Past</div>';
+      if (b.past_meetings.length) {
+        b.past_meetings.slice(0, 10).forEach(function (m) { html += meetingItemHTML(m, briefingByMeetingId); });
+      } else {
+        html += '<div class="empty-state">No past meetings on record.</div>';
+      }
+      html += "</div>";
+    });
+    return html;
+  }
+
+  function renderTabs(tiersPresent) {
+    var TIERS = ["federal", "state", "local"];
+    var html = '<div class="tabs">';
+    TIERS.forEach(function (t) {
+      html += '<button class="tab-btn' + (t === activeTier ? ' active' : '') + '" data-tier="' + t + '">' + Docket.tierLabel(t) + "</button>";
+    });
+    html += "</div>";
+    return html;
+  }
+
+  function load() {
+    Promise.all([
+      Docket.fetchJSON("/api/policy-areas/" + SLUG + "/snapshot"),
+      Docket.fetchJSON("/api/policy-areas/" + SLUG + "/bodies"),
+      Docket.fetchJSON("/api/policy-areas/" + SLUG + "/attention?limit=50"),
+      Docket.fetchJSON("/api/policy-areas/" + SLUG + "/subjects"),
+    ]).then(function (results) {
+      var snapshot = results[0], bodiesResp = results[1], attention = results[2], subjects = results[3];
+
+      document.title = snapshot.data.name + " -- Health Docket";
+      document.getElementById("area-sub").textContent = snapshot.data.name + " -- every tier tracked for this Policy Area.";
+      document.getElementById("generated-at-top").textContent = "As of " + Docket.fmtDate(snapshot.generated_at);
+      document.getElementById("breadcrumbs").innerHTML = Docket.breadcrumbsHTML([
+        { label: "Overview", href: "/" },
+        { label: snapshot.data.name },
+      ]);
+
+      var briefingByMeetingId = {};
+      attention.data.forEach(function (m) { briefingByMeetingId[m.meeting_id] = m.briefing; });
+
+      var allBodies = bodiesResp.data;
+
+      function renderForTier() {
+        var bodiesForTier = allBodies.filter(function (b) { return b.tier === activeTier; });
+        document.getElementById("tab-body-panels").innerHTML = renderBodies(bodiesForTier, briefingByMeetingId);
+        document.querySelectorAll(".tab-btn").forEach(function (btn) {
+          btn.classList.toggle("active", btn.getAttribute("data-tier") === activeTier);
+        });
+      }
+
+      content.innerHTML =
+        renderSnapshot(snapshot.data.tiers) +
+        renderSubjectChips(subjects.data) +
+        renderTabs() +
+        '<div id="tab-body-panels"></div>';
+
+      document.querySelectorAll(".tab-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          activeTier = btn.getAttribute("data-tier");
+          renderForTier();
+        });
+      });
+
+      renderForTier();
+    }).catch(function (err) {
+      Docket.showError(content, err);
+    });
+  }
+
+  load();
+})();
+</script>
+</body>
+</html>

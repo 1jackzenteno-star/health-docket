@@ -48,3 +48,15 @@ services:
     envVars:
       - key: DATABASE_PATH
         value: /var/data/health_docket.db
+      # Task 10 additions -- both secrets Jack enters directly in the
+      # Render dashboard (sync: false means Render prompts for a value
+      # instead of storing one here). ANTHROPIC_API_KEY powers
+      # pipeline/tag_subjects.py and pipeline/generate_briefings.py when
+      # POST /api/admin/refresh runs them. REFRESH_TOKEN guards that
+      # endpoint -- generate one yourself (e.g. `openssl rand -hex 32`)
+      # and set the SAME value as a GitHub Actions repo secret so
+      # .github/workflows/weekly-refresh.yml can call it.
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: REFRESH_TOKEN
+        sync: false

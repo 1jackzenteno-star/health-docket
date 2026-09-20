@@ -234,3 +234,36 @@ def policy_area_bodies(slug: str, tier: Optional[str] = Query(None)):
         )
 
     return {"data": data, "generated_at": latest_data_timestamp()}
+
+
+@router.get("/{slug}/subjects")
+def policy_area_subjects(slug: str):
+    """Distinct legislative_subjects tagged under this policy area, each
+    with how many meetings carry it -- added in Task 10 (frontend
+    cutover). Not one of design spec §6's original 7 endpoints: the spec's
+    own nav model (§3.2) says "a subject is only reachable from a Policy
+    Area page," but none of the 7 endpoints actually lists a policy
+    area's subjects, so there was no real way to build that link. This is
+    the minimal addition needed to make FR7's drill-down navigable, in
+    the same spirit as §6's other endpoints (same envelope, same 404
+    behavior) -- not a new capability, just the missing edge in an
+    existing relationship.
+    """
+    area = _find_policy_area(slug)
+    if area is None:
+        raise HTTPException(status_code=404, detail=f"Unknown policy area slug: {slug}")
+
+    rows = query(
+        """SELECT ls.id, ls.name, COUNT(DISTINCT ms.meeting_id) AS meeting_count
+           FROM legislative_subjects ls
+           JOIN meeting_subjects ms ON ms.subject_id = ls.id
+           WHERE ls.policy_area_id = ?
+           GROUP BY ls.id, ls.name
+           ORDER BY meeting_count DESC, ls.name""",
+        (area["id"],),
+    )
+    data = [
+        {"slug": slugify(r["name"]), "name": r["name"], "meeting_count": r["meeting_count"]}
+        for r in rows
+    ]
+    return {"data": data, "generated_at": latest_data_timestamp()}
