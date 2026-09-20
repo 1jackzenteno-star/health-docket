@@ -1,0 +1,42 @@
+# Render Blueprint for the Health Docket API (Task 4 + Task 5 of the build
+# plan, docs/policy-docket-design-spec.md §8).
+#
+# This deploys api/main.py as a web service backed by SQLite on a small
+# persistent disk -- NOT Postgres. The design spec (§5.1) recommends SQLite
+# specifically ("move to Postgres only if this becomes multi-user or write
+# volume grows meaningfully," neither of which applies here), and that's
+# what api/db.py and db/migrate.py actually implement. A disk is still
+# needed because POST /api/focus-areas writes real, non-regenerable data
+# (Jack's saved focus-area groupings) that must survive restarts/redeploys
+# -- everything else in the database is rebuilt from the git-tracked
+# config/sources.yaml + data/*.json on the very first deploy only, via
+# initialDeployHook below (Render runs this once per service instance, not
+# on every deploy, so later redeploys don't wipe focus_areas).
+#
+# To deploy: in the Render dashboard, New -> Blueprint -> connect the
+# 1jackzenteno-star/health-docket repo. Render finds this file automatically.
+# Deploying a paid plan requires Jack's own approval in that dashboard.
+#
+# Verified against Render's own docs (render.com/docs/blueprint-spec) and
+# pricing page (render.com/pricing) on 2026-09-19 -- plan 0.5c-512mb is the
+# "Less than 1 CPU / 512 MB RAM" tier at $7/month; persistent disks are
+# $0.25/GB/month. Total: ~$7.25/month (on top of the $0/month Hobby
+# workspace), well under the design spec's $5-15/mo cost ceiling (NFR2).
+
+services:
+  - type: web
+    name: health-docket-api
+    runtime: python
+    plan: 0.5c-512mb
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    initialDeployHook: python3 db/migrate.py
+    healthCheckPath: /api/health
+    disk:
+      name: health-docket-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: DATABASE_PATH
+        value: /var/data/health_docket.db

@@ -27,13 +27,17 @@ Usage:
 from __future__ import annotations
 
 import json
+import os
 import sqlite3
 from pathlib import Path
 
 import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
-DB_PATH = ROOT / "db" / "health_docket.db"
+
+# Overridable so a deployment (Task 4) can build the database directly on a
+# persistent disk instead of the repo checkout -- see deploy/render.yaml.
+DB_PATH = Path(os.environ["DATABASE_PATH"]) if os.environ.get("DATABASE_PATH") else ROOT / "db" / "health_docket.db"
 SCHEMA_PATH = ROOT / "db" / "schema.sql"
 SOURCES_PATH = ROOT / "config" / "sources.yaml"
 MEETINGS_PATH = ROOT / "data" / "meetings.json"
@@ -177,7 +181,11 @@ def main() -> None:
     conn.execute("PRAGMA foreign_keys = ON")
     try:
         build_schema(conn)
-        print(f"Building {DB_PATH.relative_to(ROOT)} from schema.sql + sources.yaml + meetings.json + briefing.json:")
+        try:
+            db_label = DB_PATH.relative_to(ROOT)
+        except ValueError:
+            db_label = DB_PATH  # DB_PATH is outside the repo (e.g. a mounted persistent disk in production)
+        print(f"Building {db_label} from schema.sql + sources.yaml + meetings.json + briefing.json:")
         seed_tiers(conn, sources_cfg["tiers"])
         seed_policy_areas(conn)
         slug_to_id = seed_bodies(conn, sources_cfg["sources"])

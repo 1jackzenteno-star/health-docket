@@ -6,6 +6,7 @@ of opening their own connections.
 """
 from __future__ import annotations
 
+import os
 import re
 import sqlite3
 from datetime import datetime, timezone
@@ -13,7 +14,11 @@ from pathlib import Path
 from typing import Any, Iterable, Optional
 
 ROOT = Path(__file__).resolve().parent.parent
-DB_PATH = ROOT / "db" / "health_docket.db"
+
+# Overridable so a deployment (Task 4) can point this at a persistent disk
+# instead of the repo checkout -- see deploy/render.yaml. Local dev and
+# `db/migrate.py` both leave this unset and get the repo-relative default.
+DB_PATH = Path(os.environ["DATABASE_PATH"]) if os.environ.get("DATABASE_PATH") else ROOT / "db" / "health_docket.db"
 
 
 def get_conn() -> sqlite3.Connection:
